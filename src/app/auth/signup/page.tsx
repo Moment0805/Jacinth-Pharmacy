@@ -1,0 +1,164 @@
+"use client";
+import React, { useState } from "react";
+import Image from "next/image";
+
+// ✅ Reusable Logo Component
+const JacinthLogo = () => (
+  <div className="w-24 h-8">
+    <Image
+      src="/Frame 132.svg"
+      alt="Jacinth Logo"
+      width={120}
+      height={40}
+      className="object-contain w-full h-full"
+    />
+  </div>
+);
+
+// ✅ SignUpPage Component
+const SignUpPage = ({
+  onNext,
+}: {
+  onNext: (step: string, email: string) => void;
+}) => {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.fullName && formData.email) {
+      onNext("verify-otp", formData.email);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F9FAFB] flex flex-col">
+      {/* Top Navigation */}
+      <div className="flex justify-between items-center px-8 py-6">
+        <JacinthLogo />
+        <button className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-4 py-1.5 rounded-full shadow-sm transition">
+          Log in
+        </button>
+      </div>
+
+      {/* Centered Card */}
+      <div className="flex flex-1 items-center justify-center px-4">
+        <div className="w-full max-w-[520px]  rounded-3xl shadow-sm py-12 px-24">
+          {/* Progress Steps */}
+          <div className="mb-10 ">
+            <div className="flex justify-center gap-2 mb-8 text-sm">
+              <span className="text-green-600 font-medium">1. Sign up</span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                className="text-green-600"
+              >
+                <path
+                  d="M6 12L10 8L6 4"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="text-gray-400 font-medium">2. Verify OTP</span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                className="text-gray-400"
+              >
+                <path
+                  d="M6 12L10 8L6 4"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="text-gray-400 font-medium">3. Set up</span>
+            </div>
+
+            <h1 className="text-[32px] font-bold text-gray-900 leading-tight flex justify-center">
+              Create your account
+            </h1>
+            
+          </div>
+
+          {/* Form Fields */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <input
+                type="text"
+                value={formData.fullName}
+                onChange={(e) =>
+                  setFormData({ ...formData, fullName: e.target.value })
+                }
+                placeholder="Full name"
+                className="w-full px-4 py-3.5 border border-gray-200 rounded-full text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                required
+              />
+            </div>
+
+            <div>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                placeholder="Email address"
+                className="w-full px-4 py-3.5 border border-gray-200 rounded-full text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                required
+              />
+            </div>
+
+            {/* Terms and Conditions */}
+            <p className="text-xs text-gray-600 pt-1 leading-relaxed">
+              By creating an account, you agree to the Jacinth{" "}
+              <a
+                href="#"
+                className="text-green-600 hover:underline font-medium"
+              >
+                Terms & Conditions
+              </a>{" "}
+              &{" "}
+              <a
+                href="#"
+                className="text-green-600 hover:underline font-medium"
+              >
+                Privacy Policy
+              </a>
+              .
+            </p>
+
+            {/* Create Account Button */}
+            <button
+              type="submit"
+              className="w-full bg-green-700 hover:bg-green-600 text-white py-3.5 rounded-full font-semibold text-sm transition-all mt-6"
+            >
+              Create your account
+            </button>
+
+            {/* Return to Homepage Link */}
+            <div className="text-center pt-3">
+              <button
+                type="button"
+                className="text-sm text-gray-600 hover:text-gray-900 underline underline-offset-2"
+              >
+                Return to homepage
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SignUpPage;
