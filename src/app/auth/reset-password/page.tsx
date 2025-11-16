@@ -76,7 +76,7 @@ const LoginPage = ({
               Sign In
             </button>
 
-            {/* Return to Homepage Link */}
+            {/* Return to homepage Link */}
             <div className="text-center text-sm text-gray-700 pt-3">
               <a
                 href="/reset-password"
