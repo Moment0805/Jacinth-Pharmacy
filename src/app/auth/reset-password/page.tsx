@@ -79,7 +79,7 @@ export default function ResetPasswordPage() {
               Send Reset Link
             </button>
 
-            {/* Return to Homepage Link */}
+            {/* Return to homepage Link */}
             <div className="text-center text-sm text-gray-700 pt-3">
               <button
                 type="button"
