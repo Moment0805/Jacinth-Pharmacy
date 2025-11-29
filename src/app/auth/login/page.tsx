@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const JacinthLogo = () => (
   <div className="w-24 h-8">
@@ -14,20 +15,19 @@ const JacinthLogo = () => (
   </div>
 );
 
-const LoginPage = ({
-  onNext,
-}: {
-  onNext: (step: string) => void;
-}) => {
+export default function LoginPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    fullName: "",
     email: "",
+    password: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.fullName && formData.email) {
-      onNext("homepage");
+    if (formData.email && formData.password) {
+      // TODO: Call login API
+      // For now, navigate to homepage
+      router.push("/");
     }
   };
 
@@ -36,7 +36,10 @@ const LoginPage = ({
       {/* Top Navigation */}
       <div className="flex justify-between items-center px-8 py-6">
         <JacinthLogo />
-        <button className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-3 py-1 rounded-full shadow-sm transition">
+        <button 
+          onClick={() => router.push("/auth/signup")}
+          className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-3 py-1 rounded-full shadow-sm transition"
+        >
           Sign up
         </button>
       </div>
@@ -103,6 +106,4 @@ const LoginPage = ({
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}

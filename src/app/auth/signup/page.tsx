@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // ✅ Reusable Logo Component
 const JacinthLogo = () => (
@@ -16,20 +17,19 @@ const JacinthLogo = () => (
 );
 
 // ✅ SignUpPage Component
-const SignUpPage = ({
-  onNext,
-}: {
-  onNext: (step: string, email: string) => void;
-}) => {
+export default function SignUpPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.fullName && formData.email) {
-      onNext("verify-otp", formData.email);
+      // TODO: Call signup API
+      // For now, navigate to OTP page with email in query params
+      router.push(`/auth/otp?email=${encodeURIComponent(formData.email)}`);
     }
   };
 
@@ -38,7 +38,10 @@ const SignUpPage = ({
       {/* Top Navigation */}
       <div className="flex justify-between items-center px-8 py-6">
         <JacinthLogo />
-        <button className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-4 py-1.5 rounded-full shadow-sm transition">
+        <button 
+          onClick={() => router.push("/auth/login")}
+          className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-4 py-1.5 rounded-full shadow-sm transition"
+        >
           Log in
         </button>
       </div>
@@ -149,6 +152,7 @@ const SignUpPage = ({
             <div className="text-center pt-3">
               <button
                 type="button"
+                onClick={() => router.push("/")}
                 className="text-sm text-gray-600 hover:text-gray-900 underline underline-offset-2"
               >
                 Return to homepage
@@ -159,6 +163,4 @@ const SignUpPage = ({
       </div>
     </div>
   );
-};
-
-export default SignUpPage;
+}

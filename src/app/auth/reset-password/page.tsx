@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const JacinthLogo = () => (
   <div className="w-24 h-8">
@@ -14,19 +15,18 @@ const JacinthLogo = () => (
   </div>
 );
 
-const LoginPage = ({
-  onNext,
-}: {
-  onNext: (step: string) => void;
-}) => {
+export default function ResetPasswordPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ( formData.email) {
-      onNext("otp");
+    if (formData.email) {
+      // TODO: Call reset password API
+      // For now, navigate to OTP page
+      router.push(`/auth/otp?email=${encodeURIComponent(formData.email)}&type=reset`);
     }
   };
 
@@ -35,7 +35,10 @@ const LoginPage = ({
       {/* Top Navigation */}
       <div className="flex justify-between items-center px-8 py-6">
         <JacinthLogo />
-        <button className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-3 py-1 rounded-full shadow-sm transition">
+        <button 
+          onClick={() => router.push("/auth/signup")}
+          className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-3 py-1 rounded-full shadow-sm transition"
+        >
           Sign up
         </button>
       </div>
@@ -73,23 +76,22 @@ const LoginPage = ({
               type="submit"
               className="w-full bg-green-700 hover:bg-green-600 text-white py-3.5 rounded-full font-semibold text-sm transition-all mt-6"
             >
-              Sign In
+              Send Reset Link
             </button>
 
             {/* Return to Homepage Link */}
             <div className="text-center text-sm text-gray-700 pt-3">
-              <a
-                href="/reset-password"
+              <button
+                type="button"
+                onClick={() => router.push("/auth/login")}
                 className="text-sm text-green-600 hover:text-green-900 hover:underline underline-offset-1"
               >
                 Back to login
-              </a>
+              </button>
             </div>
           </form>
         </div>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}

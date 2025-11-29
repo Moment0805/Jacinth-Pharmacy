@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import OtpInput from "@/app/components/otp";
 
 // ✅ Reusable Logo Component
@@ -16,20 +17,19 @@ const JacinthLogo = () => (
   </div>
 );
 
-// ✅ SignUpPage Component
-const SignUpPage = ({
-  onNext,
-}: {
-  onNext: (step: string) => void;
-}) => {
-  const [formData, setFormData] = useState({
-    otp:""
-  });
+// ✅ OTP Page Content Component
+function OtpPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || "iamjacinth@gmail.com";
+  const [otp, setOtp] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.otp) {
-      onNext("verify-otp");
+    if (otp && otp.length === 4) {
+      // TODO: Verify OTP with API
+      // For now, navigate to setup account page
+      router.push("/auth/setup-account");
     }
   };
 
@@ -38,7 +38,10 @@ const SignUpPage = ({
       {/* Top Navigation */}
       <div className="flex justify-between items-center px-8 py-6">
         <JacinthLogo />
-        <button className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-4 py-1.5 rounded-full shadow-sm transition">
+        <button 
+          onClick={() => router.push("/auth/login")}
+          className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-4 py-1.5 rounded-full shadow-sm transition"
+        >
           Log in
         </button>
       </div>
@@ -84,16 +87,15 @@ const SignUpPage = ({
               <span className="text-gray-400 font-medium">3. Set up</span>
             </div>
 
-            <h1 className="text-[20px] font-bold text-gray-900 leading-tight flex justify-center items-center">
-              Enter the 4-digit OTP we just sent to 
-iamjacinth@gmail.com 
+            <h1 className="text-[20px] font-bold text-gray-900 leading-tight flex justify-center items-center text-center">
+              Enter the 4-digit OTP we just sent to {email}
             </h1>
             
           </div>
 
           {/* Form Fields */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <OtpInput/>
+            <OtpInput value={otp} onChange={setOtp} />
             {/* Create Account Button */}
             <button
               type="submit"
@@ -117,6 +119,7 @@ iamjacinth@gmail.com
             <div className="text-center pt-3">
               <button
                 type="button"
+                onClick={() => router.push("/")}
                 className="text-sm text-gray-600 hover:text-gray-900 underline underline-offset-2"
               >
                 Return to homepage
@@ -127,6 +130,17 @@ iamjacinth@gmail.com
       </div>
     </div>
   );
-};
+}
 
-export default SignUpPage;
+// ✅ OTP Page Component with Suspense
+export default function OtpPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    }>
+      <OtpPageContent />
+    </Suspense>
+  );
+}

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const JacinthLogo = () => (
   <div className="w-24 h-8">
@@ -14,7 +15,8 @@ const JacinthLogo = () => (
   </div>
 );
 
-const SetupPage = ({ onNext }: { onNext: (step: string) => void }) => {
+export default function SetupPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -22,10 +24,12 @@ const SetupPage = ({ onNext }: { onNext: (step: string) => void }) => {
     password: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.firstName && formData.phone && formData.password) {
-      onNext("setup-complete");
+      // TODO: Call setup account API
+      // For now, navigate to homepage
+      router.push("/");
     }
   };
 
@@ -34,7 +38,10 @@ const SetupPage = ({ onNext }: { onNext: (step: string) => void }) => {
       {/* Top Navigation */}
       <div className="flex justify-between items-center px-8 py-6">
         <JacinthLogo />
-        <button className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-4 py-1.5 rounded-full shadow-sm transition">
+        <button 
+          onClick={() => router.push("/auth/login")}
+          className="text-sm font-semibold text-gray-700 hover:text-gray-900 bg-gray-100 px-4 py-1.5 rounded-full shadow-sm transition"
+        >
           Log in
         </button>
       </div>
@@ -161,6 +168,7 @@ const SetupPage = ({ onNext }: { onNext: (step: string) => void }) => {
             <div className="text-center pt-3">
               <button
                 type="button"
+                onClick={() => router.push("/")}
                 className="text-sm text-gray-600 hover:text-gray-900 underline underline-offset-2"
               >
                 Return to homepage
@@ -171,6 +179,4 @@ const SetupPage = ({ onNext }: { onNext: (step: string) => void }) => {
       </div>
     </div>
   );
-};
-
-export default SetupPage;
+}
