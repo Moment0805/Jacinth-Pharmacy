@@ -3,27 +3,39 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { api, handleApiResponse, isAuthenticated, removeAuthToken } from '@/app/lib/api';
+import { useAuth } from '@/app/lib/auth';
 
 export default function Header() {
+  const router = useRouter();
+  const { user, authenticated, logout } = useAuth();
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    // Fetch cart count
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (token) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/cart`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.items) {
-            setCartCount(data.items.length);
-          }
-        })
-        .catch(() => {});
-    }
-  }, []);
+    const fetchCartCount = async () => {
+      if (!authenticated) {
+        setCartCount(0);
+        return;
+      }
+
+      try {
+        const response = await api.getCart();
+        const data = await handleApiResponse(response);
+        if (data.items) {
+          setCartCount(data.items.length);
+        }
+      } catch (error) {
+        // Silently fail - cart count is not critical
+      }
+    };
+
+    fetchCartCount();
+    // Refresh cart count periodically
+    const interval = setInterval(fetchCartCount, 30000); // Every 30 seconds
+    return () => clearInterval(interval);
+  }, [authenticated]);
 
   return (
     <motion.header
@@ -122,13 +134,30 @@ export default function Header() {
                     </Link>
                   </motion.div>
 
-              {/* Sign In */}
-              <Link href="/auth/login" className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-green-600">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                <span className="font-medium">Sign In</span>
-              </Link>
+              {/* User Account / Sign In */}
+              {authenticated && user ? (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <span className="font-medium">{user.fullName || user.email}</span>
+                  </div>
+                  <button
+                    onClick={logout}
+                    className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-green-600"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span className="font-medium">Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <Link href="/auth/login" className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-green-600">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className="font-medium">Sign In</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>

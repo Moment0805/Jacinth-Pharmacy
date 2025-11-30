@@ -3,6 +3,8 @@ import React, { useState, Suspense } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import OtpInput from "@/app/components/otp";
+import { api, handleApiResponse, getErrorMessage } from "@/app/lib/api";
+import { toast } from "@/app/components/Toast";
 
 // ✅ Reusable Logo Component
 const JacinthLogo = () => (
@@ -21,15 +23,68 @@ const JacinthLogo = () => (
 function OtpPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "iamjacinth@gmail.com";
+  const email = searchParams.get("email") || "";
   const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp && otp.length === 4) {
-      // TODO: Verify OTP with API
-      // For now, navigate to setup account page
-      router.push("/auth/setup-account");
+    setError("");
+    setSuccess("");
+
+    if (!otp || otp.length !== 4) {
+      setError("Please enter a valid 4-digit OTP");
+      return;
+    }
+
+    if (!email) {
+      setError("Email is required");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await api.verifyOtp({
+        email,
+        code: otp,
+      });
+      const data = await handleApiResponse(response);
+      
+      if (data.message) {
+        router.push(`/auth/setup-account?email=${encodeURIComponent(email)}`);
+      }
+    } catch (err) {
+      setError(getErrorMessage(err));
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!email) {
+      setError("Email is required");
+      return;
+    }
+
+    setResending(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await api.signup({
+        fullName: "", // Resend doesn't need fullName
+        email,
+      });
+      await handleApiResponse(response);
+      setSuccess("OTP has been resent to your email");
+      toast.success("OTP has been resent to your email");
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setResending(false);
     }
   };
 
@@ -88,7 +143,7 @@ function OtpPageContent() {
             </div>
 
             <h1 className="text-[20px] font-bold text-gray-900 leading-tight flex justify-center items-center text-center">
-              Enter the 4-digit OTP we just sent to {email}
+              Enter the 4-digit OTP we just sent to {email || "your email"}
             </h1>
             
           </div>
@@ -96,23 +151,41 @@ function OtpPageContent() {
           {/* Form Fields */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <OtpInput value={otp} onChange={setOtp} />
+            
+            {/* Error Message */}
+            {error && (
+              <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
+            {/* Success Message */}
+            {success && (
+              <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-600">
+                {success}
+              </div>
+            )}
+
             {/* Create Account Button */}
             <button
               type="submit"
-              className="w-full bg-green-700 hover:bg-green-600 text-white py-3.5 rounded-full font-medium text-sm transition-all mt-6"
+              disabled={loading || !otp || otp.length !== 4}
+              className="w-full bg-green-700 hover:bg-green-600 disabled:bg-green-400 disabled:cursor-not-allowed text-white py-3.5 rounded-full font-medium text-sm transition-all mt-6"
             >
-              Verify OTP
+              {loading ? "Verifying..." : "Verify OTP"}
             </button>
 
- {/* Terms and Conditions */}
+            {/* Resend OTP */}
             <p className="text-xs text-gray-600 flex justify-center pt-1 leading-relaxed">
               Didn&apos;t get the code? {""}
-              <a
-                href="#"
-                className="text-green-600 hover:underline font-medium "
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={resending}
+                className="text-green-600 hover:underline font-medium disabled:text-gray-400"
               >
-                 Resend OTP
-              </a>
+                {resending ? "Resending..." : "Resend OTP"}
+              </button>
             </p>
 
             {/* Return to Homepage Link */}

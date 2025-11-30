@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { api, handleApiResponse, getErrorMessage, setAuthToken } from "@/app/lib/api";
+import { toast } from "@/app/components/Toast";
 
 const JacinthLogo = () => (
   <div className="w-24 h-8">
@@ -21,13 +23,36 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.email && formData.password) {
-      // TODO: Call login API
-      // For now, navigate to homepage
-      router.push("/");
+    setError("");
+
+    if (!formData.email || !formData.password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await api.login({
+        email: formData.email,
+        password: formData.password,
+      });
+      const data = await handleApiResponse(response);
+      
+      if (data.access_token) {
+        setAuthToken(data.access_token);
+        router.push("/");
+      }
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      toast.error(errorMsg);
+      setLoading(false);
     }
   };
 
@@ -58,9 +83,16 @@ export default function LoginPage() {
 
           {/* Form Fields */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
             <div>
               <input
-                type="text"
+                type="email"
                 value={formData.email}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
@@ -86,9 +118,10 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full bg-green-700 hover:bg-green-600 text-white py-3.5 rounded-full font-semibold text-sm transition-all mt-6"
+              disabled={loading}
+              className="w-full bg-green-700 hover:bg-green-600 disabled:bg-green-400 disabled:cursor-not-allowed text-white py-3.5 rounded-full font-semibold text-sm transition-all mt-6"
             >
-              Sign In
+              {loading ? "Signing in..." : "Sign In"}
             </button>
 
             {/* Return to Homepage Link */}

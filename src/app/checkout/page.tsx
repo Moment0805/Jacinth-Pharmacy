@@ -7,6 +7,8 @@ import CheckoutProgress from '../components/CheckoutProgress';
 import CartItem from '../components/CartItem';
 import OrderSummary from '../components/OrderSummary';
 import ProductGrid from '../components/ProductGrid';
+import { api, handleApiResponse, getErrorMessage } from '@/app/lib/api';
+import { toast } from '../components/Toast';
 
 interface CartItemData {
   id: string;
@@ -34,93 +36,55 @@ export default function CheckoutPage() {
   const [recommendedProducts, setRecommendedProducts] = useState([]);
 
   useEffect(() => {
-    // Fetch cart
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
-
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/cart`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
+    const fetchData = async () => {
+      try {
+        const cartResponse = await api.getCart();
+        const cartData = await handleApiResponse(cartResponse);
+        setCart(cartData);
+      } catch (error: any) {
+        if (error.statusCode === 401) {
           router.push('/auth/login');
-          return null;
+        } else {
+          toast.error('Failed to load cart');
         }
-        return res.json();
-      })
-      .then((data) => {
-        if (data) {
-          setCart(data);
-        }
+      } finally {
         setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+      }
 
-    // Fetch recommended products
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products?limit=5`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.data) {
-          setRecommendedProducts(data.data);
+      // Fetch recommended products
+      try {
+        const productsResponse = await api.getProducts({ limit: '5' });
+        const productsData = await handleApiResponse(productsResponse);
+        if (productsData.data) {
+          setRecommendedProducts(productsData.data);
         }
-      })
-      .catch(() => {});
+      } catch (error) {
+        // Silently fail for recommended products
+      }
+    };
+
+    fetchData();
   }, [router]);
 
   const handleUpdateQuantity = async (itemId: string, quantity: number) => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/cart/items/${itemId}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ quantity }),
-        }
-      );
-
-      if (res.ok) {
-        const updatedCart = await res.json();
-        setCart(updatedCart);
-      }
+      const response = await api.updateCartItem(itemId, quantity);
+      const updatedCart = await handleApiResponse(response);
+      setCart(updatedCart);
+      toast.success('Cart updated');
     } catch (error) {
-      console.error('Failed to update quantity:', error);
+      toast.error(getErrorMessage(error));
     }
   };
 
   const handleRemoveItem = async (itemId: string) => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/cart/items/${itemId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (res.ok) {
-        const updatedCart = await res.json();
-        setCart(updatedCart);
-      }
+      const response = await api.removeCartItem(itemId);
+      const updatedCart = await handleApiResponse(response);
+      setCart(updatedCart);
+      toast.success('Item removed from cart');
     } catch (error) {
-      console.error('Failed to remove item:', error);
+      toast.error(getErrorMessage(error));
     }
   };
 

@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { api, handleApiResponse, getErrorMessage } from "@/app/lib/api";
+import { toast } from "@/app/components/Toast";
 
 // ✅ Reusable Logo Component
 const JacinthLogo = () => (
@@ -23,13 +25,35 @@ export default function SignUpPage() {
     fullName: "",
     email: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.fullName && formData.email) {
-      // TODO: Call signup API
-      // For now, navigate to OTP page with email in query params
-      router.push(`/auth/otp?email=${encodeURIComponent(formData.email)}`);
+    setError("");
+    setLoading(true);
+
+    if (!formData.fullName || !formData.email) {
+      setError("Please fill in all fields");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await api.signup({
+        fullName: formData.fullName,
+        email: formData.email,
+      });
+      const data = await handleApiResponse(response);
+      
+      if (data.message) {
+        router.push(`/auth/otp?email=${encodeURIComponent(formData.email)}`);
+      }
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      toast.error(errorMsg);
+      setLoading(false);
     }
   };
 
@@ -140,12 +164,20 @@ export default function SignUpPage() {
               .
             </p>
 
+            {/* Error Message */}
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
             {/* Create Account Button */}
             <button
               type="submit"
-              className="w-full bg-green-700 hover:bg-green-600 text-white py-3.5 rounded-full font-semibold text-sm transition-all mt-6"
+              disabled={loading}
+              className="w-full bg-green-700 hover:bg-green-600 disabled:bg-green-400 disabled:cursor-not-allowed text-white py-3.5 rounded-full font-semibold text-sm transition-all mt-6"
             >
-              Create your account
+              {loading ? "Creating account..." : "Create your account"}
             </button>
 
             {/* Return to Homepage Link */}

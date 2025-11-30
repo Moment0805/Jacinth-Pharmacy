@@ -7,6 +7,7 @@ import ProductGrid from '../../components/ProductGrid';
 import ProductFilters from '../../components/ProductFilters';
 import Pagination from '../../components/Pagination';
 import PromotionalBanner from '../../components/PromotionalBanner';
+import { api, handleApiResponse } from '@/app/lib/api';
 
 interface Product {
   id: string;
@@ -37,28 +38,33 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState('latest');
 
   useEffect(() => {
-    // Fetch categories
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/categories`)
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchCategories = async () => {
+      try {
+        const response = await api.getCategories();
+        const data = await handleApiResponse(response);
         if (Array.isArray(data)) {
           setCategories(data);
         }
-      })
-      .catch(() => {});
+      } catch (error) {
+        // Silently fail
+      }
 
-    // Check for category from URL
-    const categorySlug = searchParams.get('category');
-    if (categorySlug) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/categories/${categorySlug}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.id) {
-            setSelectedCategory(data.id);
+      // Check for category from URL
+      const categorySlug = searchParams.get('category');
+      if (categorySlug) {
+        try {
+          const categoryResponse = await api.getCategory(categorySlug);
+          const categoryData = await handleApiResponse(categoryResponse);
+          if (categoryData.id) {
+            setSelectedCategory(categoryData.id);
           }
-        })
-        .catch(() => {});
-    }
+        } catch (error) {
+          // Silently fail
+        }
+      }
+    };
+
+    fetchCategories();
   }, [searchParams]);
 
   useEffect(() => {
@@ -82,8 +88,8 @@ export default function ProductsPage() {
       }
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products?${params}`);
-        const data = await res.json();
+        const response = await api.getProducts(Object.fromEntries(params));
+        const data = await handleApiResponse(response);
         if (data.data) {
           setProducts(data.data);
           setTotalPages(data.meta?.totalPages || 1);

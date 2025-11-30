@@ -2,7 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { api, handleApiResponse, getErrorMessage, isAuthenticated } from '@/app/lib/api';
+import { toast } from './Toast';
+import { useState } from 'react';
 
 interface ProductCardProps {
   id: string;
@@ -16,9 +20,34 @@ interface ProductCardProps {
   index?: number;
 }
 
-export default function ProductCard({ name, slug, price, discount = 0, images, isFeatured, isNew, index = 0 }: ProductCardProps) {
+export default function ProductCard({ id, name, slug, price, discount = 0, images, isFeatured, isNew, index = 0 }: ProductCardProps) {
+  const router = useRouter();
+  const [adding, setAdding] = useState(false);
   const discountedPrice = price * (1 - discount / 100);
   const imageUrl = images && images.length > 0 ? images[0] : '/placeholder-product.jpg';
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated()) {
+      router.push('/auth/login');
+      return;
+    }
+
+    setAdding(true);
+
+    try {
+      const response = await api.addToCart(id, 1);
+      await handleApiResponse(response);
+      toast.success('Product added to cart!');
+    } catch (err) {
+      const errorMessage = getErrorMessage(err);
+      toast.error(errorMessage);
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
     <motion.div
@@ -109,9 +138,11 @@ export default function ProductCard({ name, slug, price, discount = 0, images, i
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="mt-3 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-medium transition-colors"
+            onClick={handleAddToCart}
+            disabled={adding}
+            className="mt-3 w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white py-2 rounded-lg text-sm font-medium transition-colors"
           >
-            Add to Cart
+            {adding ? 'Adding...' : 'Add to Cart'}
           </motion.button>
         </div>
       </Link>

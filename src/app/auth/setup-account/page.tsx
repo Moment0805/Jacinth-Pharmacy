@@ -1,7 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { api, handleApiResponse, getErrorMessage, setAuthToken } from "@/app/lib/api";
+import { toast } from "@/app/components/Toast";
 
 const JacinthLogo = () => (
   <div className="w-24 h-8">
@@ -15,21 +17,60 @@ const JacinthLogo = () => (
   </div>
 );
 
-export default function SetupPage() {
+function SetupPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || "";
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     phone: "",
+    countryCode: "+234",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.firstName && formData.phone && formData.password) {
-      // TODO: Call setup account API
-      // For now, navigate to homepage
-      router.push("/");
+    setError("");
+
+    if (!formData.firstName || !formData.password) {
+      setError("First name and password are required");
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return;
+    }
+
+    if (!email) {
+      setError("Email is required. Please go back to signup.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await api.setupAccount(email, {
+        firstName: formData.firstName,
+        lastName: formData.lastName || undefined,
+        phoneNumber: formData.phone ? `${formData.countryCode}${formData.phone}` : undefined,
+        countryCode: formData.phone ? formData.countryCode : undefined,
+        password: formData.password,
+      });
+      const data = await handleApiResponse(response);
+      
+      if (data.access_token) {
+        setAuthToken(data.access_token);
+        router.push("/");
+      }
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      toast.error(errorMsg);
+      setLoading(false);
     }
   };
 
@@ -93,7 +134,14 @@ export default function SetupPage() {
           </div>
 
           {/* Form Fields */}
-          <form onSubmit={handleSubmit} className="space-y-5 ">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
             {/* Name Fields */}
             <div className="">
               <label className="text-sm font-bold text-gray-700 mb-1 block">
@@ -107,6 +155,7 @@ export default function SetupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, firstName: e.target.value })
                   }
+                  required
                   className="w-full border border-gray-300 rounded-full px-4 py-3 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-600"
                 />
                 <input
@@ -126,15 +175,28 @@ export default function SetupPage() {
               <label className="text-sm font-bold text-gray-700 mb-1 block">
                 Phone number
               </label>
-              <input
-                type="tel"
-                placeholder="+234"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                className="w-full border border-gray-300 rounded-full px-4 py-3 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-600"
-              />
+              <div className="flex gap-2">
+                <select
+                  value={formData.countryCode}
+                  onChange={(e) =>
+                    setFormData({ ...formData, countryCode: e.target.value })
+                  }
+                  className="border border-gray-300 rounded-full px-3 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-600"
+                >
+                  <option value="+234">+234</option>
+                  <option value="+1">+1</option>
+                  <option value="+44">+44</option>
+                </select>
+                <input
+                  type="tel"
+                  placeholder="Phone number"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  className="flex-1 border border-gray-300 rounded-full px-4 py-3 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-600"
+                />
+              </div>
             </div>
 
             {/* Password */}
@@ -144,11 +206,13 @@ export default function SetupPage() {
               </label>
               <input
                 type="password"
-                placeholder="Minimum 8 character’s long"
+                placeholder="Minimum 8 character's long"
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
+                required
+                minLength={8}
                 className="w-full border border-gray-300 rounded-full px-4 py-3 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-600"
               />
               <p className="text-xs text-gray-600 mt-1">
@@ -159,9 +223,10 @@ export default function SetupPage() {
             {/* Continue Button */}
             <button
               type="submit"
-              className="w-full bg-green-700 hover:bg-green-600 text-white py-3.5 rounded-full font-medium text-sm transition-all mt-4"
+              disabled={loading}
+              className="w-full bg-green-700 hover:bg-green-600 disabled:bg-green-400 disabled:cursor-not-allowed text-white py-3.5 rounded-full font-medium text-sm transition-all mt-4"
             >
-              Continue
+              {loading ? "Setting up..." : "Continue"}
             </button>
 
             {/* Return to Homepage */}
@@ -178,5 +243,17 @@ export default function SetupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SetupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    }>
+      <SetupPageContent />
+    </Suspense>
   );
 }

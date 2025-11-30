@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { api, handleApiResponse, getErrorMessage } from "@/app/lib/api";
 
 const JacinthLogo = () => (
   <div className="w-24 h-8">
@@ -20,13 +21,35 @@ export default function ResetPasswordPage() {
   const [formData, setFormData] = useState({
     email: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.email) {
-      // TODO: Call reset password API
-      // For now, navigate to OTP page
-      router.push(`/auth/otp?email=${encodeURIComponent(formData.email)}&type=reset`);
+    setError("");
+    setSuccess(false);
+
+    if (!formData.email) {
+      setError("Please enter your email address");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await api.resetPassword({
+        email: formData.email,
+      });
+      await handleApiResponse(response);
+      setSuccess(true);
+      // Navigate to OTP page for password reset confirmation
+      setTimeout(() => {
+        router.push(`/auth/reset-password/confirm?email=${encodeURIComponent(formData.email)}`);
+      }, 2000);
+    } catch (err) {
+      setError(getErrorMessage(err));
+      setLoading(false);
     }
   };
 
@@ -59,24 +82,40 @@ export default function ResetPasswordPage() {
 
           {/* Form Fields */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
+            {/* Success Message */}
+            {success && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-600">
+                OTP has been sent to your email. Redirecting...
+              </div>
+            )}
+
             <div>
               <input
-                type="text"
+                type="email"
                 value={formData.email}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
                 placeholder="Email address"
-                className="w-full px-4 py-3.5 border border-gray-200 rounded-full text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                disabled={success}
+                className="w-full px-4 py-3.5 border border-gray-200 rounded-full text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                 required
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-green-700 hover:bg-green-600 text-white py-3.5 rounded-full font-semibold text-sm transition-all mt-6"
+              disabled={loading || success}
+              className="w-full bg-green-700 hover:bg-green-600 disabled:bg-green-400 disabled:cursor-not-allowed text-white py-3.5 rounded-full font-semibold text-sm transition-all mt-6"
             >
-              Send Reset Link
+              {loading ? "Sending..." : success ? "Sent!" : "Send Reset Link"}
             </button>
 
             {/* Return to homepage Link */}

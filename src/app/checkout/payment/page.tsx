@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CheckoutProgress from '../../components/CheckoutProgress';
 import OrderSummary from '../../components/OrderSummary';
+import { api, handleApiResponse, getErrorMessage } from '@/app/lib/api';
+import { toast } from '../../components/Toast';
 
 interface Cart {
   id: string;
@@ -40,33 +42,23 @@ export default function PaymentPage() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
-
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/cart`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
+    const fetchCart = async () => {
+      try {
+        const response = await api.getCart();
+        const cartData = await handleApiResponse(response);
+        setCart(cartData);
+      } catch (error: any) {
+        if (error.statusCode === 401) {
           router.push('/auth/login');
-          return null;
+        } else {
+          toast.error('Failed to load cart');
         }
-        return res.json();
-      })
-      .then((data) => {
-        if (data) {
-          setCart(data);
-        }
+      } finally {
         setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchCart();
   }, [router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,76 +82,42 @@ export default function PaymentPage() {
     e.preventDefault();
     setSubmitting(true);
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
-
     try {
       // Create order
-      const orderRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/orders`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            shippingAddress: {
-              street: formData.streetAddress,
-              city: formData.townCity,
-              state: formData.state,
-              country: formData.country,
-              zipCode: formData.zipCode,
-              phoneNumber: formData.phoneNumber,
-              localGovernmentArea: formData.localGovernmentArea,
-            },
-            paymentMethod: deliveryOption === 'door' ? 'Door Delivery' : 'Pickup',
-          }),
-        }
-      );
+      const orderResponse = await api.createOrder({
+        shippingAddress: {
+          street: formData.streetAddress,
+          city: formData.townCity,
+          state: formData.state,
+          country: formData.country,
+          zipCode: formData.zipCode,
+          phoneNumber: formData.phoneNumber,
+          localGovernmentArea: formData.localGovernmentArea,
+        },
+        paymentMethod: deliveryOption === 'door' ? 'Door Delivery' : 'Pickup',
+      });
 
-      if (!orderRes.ok) {
-        throw new Error('Failed to create order');
-      }
-
-      const order = await orderRes.json();
+      const order = await handleApiResponse(orderResponse);
 
       // Initialize payment
-      const paymentRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/payments/initialize`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            orderId: order.id,
-            provider: 'PAYSTACK', // Default to Paystack
-            callbackUrl: `${window.location.origin}/checkout/success`,
-          }),
-        }
-      );
+      const paymentResponse = await api.initializePayment({
+        orderId: order.id,
+        provider: 'PAYSTACK', // Default to Paystack
+        callbackUrl: `${window.location.origin}/checkout/success`,
+      });
 
-      if (!paymentRes.ok) {
-        throw new Error('Failed to initialize payment');
-      }
-
-      const payment = await paymentRes.json();
+      const payment = await handleApiResponse(paymentResponse);
 
       // Redirect to payment gateway
       if (payment.authorizationUrl) {
         window.location.href = payment.authorizationUrl;
       } else {
-        alert('Payment initialization failed. Please try again.');
+        toast.error('Payment initialization failed. Please try again.');
         setSubmitting(false);
       }
     } catch (error) {
-      console.error('Checkout error:', error);
-      alert('An error occurred. Please try again.');
+      const errorMsg = getErrorMessage(error);
+      toast.error(errorMsg);
       setSubmitting(false);
     }
   };
