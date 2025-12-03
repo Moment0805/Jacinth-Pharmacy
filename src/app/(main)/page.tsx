@@ -147,26 +147,26 @@ export default function Home() {
                 />
               </div>
               
-              {/* Content Overlay - Left Aligned */}
+              {/* Content Overlay - Centered */}
               <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
-                className="relative z-10 max-w-2xl px-8 md:px-12"
+                className="relative z-10 max-w-3xl mx-auto px-8 md:px-12 text-center"
               >
-                <motion.h1
+                <motion.h2
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
-                  className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
+                  className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-4"
                 >
                   Your medicine, delivered
-                </motion.h1>
+                </motion.h2>
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
-                  className="text-lg text-gray-700 mb-8"
+                  className="text-sm md:text-md lg:text-xl text-gray-700 mb-8 max-w-2xl mx-auto"
                 >
                   We have prepared special discounts for you on organic breakfast products.
                 </motion.p>
@@ -174,6 +174,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.6 }}
+                  className="flex justify-center"
                 >
                   <motion.div
                     whileHover={{ scale: 1.05 }}
@@ -181,7 +182,7 @@ export default function Home() {
                   >
                     <Link
                       href="/products"
-                      className="inline-block bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+                      className="inline-block bg-green-700 hover:bg-green-800 text-white px-4  md:px-10 md:py-4 rounded-full font-semibold transition-colors"
                     >
                       Shop Now
                     </Link>
@@ -314,7 +315,7 @@ export default function Home() {
                 className="object-cover"
               />
             </div>
-            <div className="relative z-10 bg-[#007539]/90 p-8 md:p-12">
+            <div className="relative z-10 bg-[#007539]/5 p-8 md:p-12">
               <div className="max-w-2xl">
                 <motion.span
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -377,7 +378,7 @@ export default function Home() {
             </Link>
           </motion.div>
           <div className="relative">
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth" id="categories-scroll">
+            <div className="flex gap-8 m-8 overflow-x-auto pb-4 scrollbar-hide scroll-smooth" id="categories-scroll">
               {/* Display 5 categories with images */}
               {categories.slice(0, 5).map((category, index) => {
                 // Map first 3 categories to specific images, others use placeholder or API image
@@ -584,82 +585,82 @@ export default function Home() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.6 }}
-        className="py-12 bg-white mt-6 md:mt-8"
+        className="py-12 mb-8 bg-white mt-6 md:mt-8"
       >
         <div className="container mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            whileHover={{ scale: 1.01 }}
-            className="bg-[#007539] rounded-3xl shadow-lg p-8 md:p-12 text-white mb-8 max-w-6xl mx-auto"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        whileHover={{ scale: 1.01 }}
+        className="bg-[#029047] rounded-3xl shadow-lg p-8 md:p-12 text-white mb-8 max-w-6xl mx-auto relative pb-56"
           >
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <h2 className="text-3xl md:text-4xl font-bold mb-3">Most Popular Categories</h2>
-                <p className="text-green-100 text-lg">
-                  Shop from the favorites everyone&apos;s talking about the most trusted categories chosen by our customers every day.
-                </p>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link
-                  href="/products"
-                  className="mt-4 md:mt-0 inline-block bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
-                >
-                  Shop Now!
-                </Link>
-              </motion.div>
-            </div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-12">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">Most Popular Categories</h2>
+            <p className="text-green-100 text-lg">
+          Shop from the favorites everyone&apos;s talking about the most trusted categories chosen by our customers every day.
+            </p>
           </motion.div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth max-w-6xl mx-auto">
-            {categories.slice(0, 6).map((category, index) => {
-              const categoryImages = ['/05.svg', '/07.svg', '/09.svg'];
-              const imageSrc = category.image || (index < 3 ? categoryImages[index] : '/05.svg');
-              
-              return (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  whileHover={{ y: -10, scale: 1.05 }}
-                >
-                  <Link
-                    href={`/products?category=${category.slug}`}
-                    className="flex-shrink-0 w-40 bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md transition-shadow shadow-sm"
-                  >
-                    <motion.div
-                      whileHover={{ rotate: 5 }}
-                      className="w-24 h-24 bg-gray-50 rounded-lg flex items-center justify-center mb-3 mx-auto"
-                    >
-                      <Image
-                        src={imageSrc}
-                        alt={category.name}
-                        width={80}
-                        height={80}
-                        className="object-contain"
-                      />
-                    </motion.div>
-                    <p className="text-center text-sm font-medium text-gray-700">{category.name}</p>
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Link
+          href="/products"
+          className="mt-4 md:mt-0 inline-block bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
+            >
+          Shop Now!
+            </Link>
+          </motion.div>
+        </div>
+
+        <div className="mt-7 absolute -bottom-32 left-4 right-4 max-w-6xl mx-auto flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth">
+          {categories.slice(0, 6).map((category, index) => {
+            const categoryImages = ['/05.svg', '/07.svg', '/09.svg'];
+            const imageSrc = category.image || (index < 3 ? categoryImages[index] : '/05.svg');
+            
+            return (
+          <motion.div
+            key={category.id}
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            whileHover={{ y: -10, scale: 1.05 }}
+          >
+            <Link
+              href={`/products?category=${category.slug}`}
+              className="flex-shrink-0"
+            >
+              <div className="w-44 h-44 bg-gray-50 rounded-2xl flex flex-col items-center justify-center gap-3">
+            <div className="w-32 h-32 flex items-center justify-center">
+              <Image
+                src={imageSrc}
+                alt={category.name}
+                width={100}
+                height={100}
+                className="object-contain"
+              />
+            </div>
+            <p className="text-center text-sm font-medium text-gray-700 px-2">{category.name}</p>
+              </div>
+            </Link>
+          </motion.div>
+            );
+          })}
+        </div>
+          </motion.div>
         </div>
       </motion.section>
 
@@ -669,19 +670,19 @@ export default function Home() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.6 }}
-        className="py-16 bg-black text-white mt-6 md:mt-8"
+        className="py-16 mt-6 md:mt-8"
       >
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-3xl md:text-4xl font-bold text-white mb-10 text-center"
-            >
-              Frequently Asked Questions
-            </motion.h2>
+        <div className="container mx-auto px-4 mt-24">
+          <div className=" mx-auto">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-3xl md:text-4xl font-bold mb-10 text-center"
+        >
+          Frequently Asked Questions
+        </motion.h2>
             <FAQAccordion faqs={[
               {
                 id: '1',
@@ -695,12 +696,12 @@ export default function Home() {
               },
               {
                 id: '3',
-                question: "What is Jacinth&apos;s phone number?",
+                question: "What is Jacinth's phone number?",
                 answer: "You can reach us at Sales Number: 08187122408 or Customer Care Numbers: 02015150550, 02015150551, 02015150552"
               },
               {
                 id: '4',
-                question: "What products can I buy on Jacinth Pharmacy&apos;s website?",
+                question: "What products can I buy on Jacinth Pharmacy's website?",
                 answer: "You can purchase a wide range of pharmaceutical products including prescription medications, over-the-counter drugs, non-drug items like skincare products, vitamins, supplements, and other healthcare essentials. All our products are authentic and sourced from verified suppliers."
               }
             ]} />
@@ -717,7 +718,7 @@ export default function Home() {
               >
                 <Link
                   href="/faq"
-                  className="inline-block bg-white hover:bg-gray-100 text-black px-8 py-3 rounded-full font-semibold transition-colors"
+                  className="inline-block bg-green-700 hover:bg-green-800 text-white mt-3 mb-12 px-8 py-3 rounded-full font-semibold transition-colors"
                 >
                   Read all FAQs
                 </Link>

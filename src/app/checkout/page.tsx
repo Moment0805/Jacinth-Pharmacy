@@ -9,6 +9,7 @@ import OrderSummary from '../components/OrderSummary';
 import ProductGrid from '../components/ProductGrid';
 import { api, handleApiResponse, getErrorMessage } from '@/app/lib/api';
 import { toast } from '../components/Toast';
+import { mockProducts } from '@/app/lib/mockProducts';
 
 interface CartItemData {
   id: string;
@@ -145,17 +146,17 @@ export default function CheckoutPage() {
       </div>
 
       {/* Progress Indicator */}
-      <CheckoutProgress currentStep="shipping" />
+      <CheckoutProgress currentStep="cart" />
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Summary */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm">
-              <div className="p-6 border-b">
+              <div className="p-6 border-b border-gray-200">
                 <h2 className="text-xl font-bold text-gray-900">Cart Summary</h2>
               </div>
-              <div>
+              <div className="divide-y divide-gray-200">
                 {cart.items.map((item) => (
                   <CartItem
                     key={item.id}
@@ -187,19 +188,21 @@ export default function CheckoutPage() {
       </div>
 
       {/* Recommended Products */}
-      {recommendedProducts.length > 0 && (
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Recommended with your order</h2>
-              <Link href="/products" className="text-green-600 hover:text-green-700 font-semibold">
-                View All →
-              </Link>
-            </div>
-            <ProductGrid products={recommendedProducts} />
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Recommended with your order</h2>
+            <Link href="/products" className="text-green-600 hover:text-green-700 font-semibold">
+              View All
+            </Link>
           </div>
-        </section>
-      )}
+          {recommendedProducts.length > 0 ? (
+            <ProductGrid products={recommendedProducts} />
+          ) : (
+            <ProductGrid products={mockProducts.slice(0, 5)} />
+          )}
+        </div>
+      </section>
     </div>
   );
 }

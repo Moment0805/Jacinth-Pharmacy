@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function PromotionalBanner() {
   return (
-    <div className="relative bg-gradient-to-r from-green-600 to-green-700 overflow-hidden">
+    <div className="relative bg-gradient-to-r from-green-500 to-green-600 overflow-hidden">
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div className="text-white">

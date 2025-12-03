@@ -47,7 +47,7 @@ export default function SignUpPage() {
       const data = await handleApiResponse(response);
       
       if (data.message) {
-        router.push(`/auth/otp?email=${encodeURIComponent(formData.email)}`);
+      router.push(`/auth/otp?email=${encodeURIComponent(formData.email)}`);
       }
     } catch (err) {
       const errorMsg = getErrorMessage(err);

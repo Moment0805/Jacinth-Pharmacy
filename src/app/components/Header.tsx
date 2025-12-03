@@ -23,9 +23,9 @@ export default function Header() {
       try {
         const response = await api.getCart();
         const data = await handleApiResponse(response);
-        if (data.items) {
-          setCartCount(data.items.length);
-        }
+          if (data.items) {
+            setCartCount(data.items.length);
+          }
       } catch (error) {
         // Silently fail - cart count is not critical
       }
@@ -151,12 +151,12 @@ export default function Header() {
                   </button>
                 </div>
               ) : (
-                <Link href="/auth/login" className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-green-600">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="font-medium">Sign In</span>
-                </Link>
+              <Link href="/auth/login" className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-green-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="font-medium">Sign In</span>
+              </Link>
               )}
             </div>
           </div>

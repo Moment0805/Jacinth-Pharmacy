@@ -35,7 +35,7 @@ export default function FAQAccordion({ faqs }: FAQAccordionProps) {
             className={`rounded-lg overflow-hidden ${
               isOpen
                 ? 'bg-[#007539] text-white shadow-lg'
-                : 'bg-gray-100 text-gray-900 shadow-md border border-gray-200'
+                : 'bg-white/10 text-gray-900 shadow-md border border-gray-200'
             }`}
           >
             <motion.button

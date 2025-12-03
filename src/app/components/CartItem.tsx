@@ -32,8 +32,8 @@ export default function CartItem({
   };
 
   return (
-    <div className="flex gap-4 p-4 border-b border-gray-200">
-      <div className="relative w-20 h-20 flex-shrink-0">
+    <div className="flex gap-4 p-6">
+      <div className="relative w-20 h-20 flex-shrink-0 bg-gray-50 rounded">
         <Image
           src={productImage || '/placeholder-product.jpg'}
           alt={productName}
@@ -41,35 +41,34 @@ export default function CartItem({
           className="object-cover rounded"
         />
       </div>
-      <div className="flex-1">
-        <h3 className="font-medium text-gray-900 mb-2">{productName}</h3>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 border border-gray-300 rounded">
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium text-gray-900 mb-3 text-sm">{productName}</h3>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => handleQuantityChange(localQuantity - 1)}
-              className="px-3 py-1 hover:bg-gray-100"
+              className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50 text-gray-600 hover:text-gray-900"
             >
               -
             </button>
-            <span className="px-4 py-1 min-w-[3rem] text-center">{localQuantity}</span>
+            <span className="w-12 text-center text-sm font-medium">{localQuantity}</span>
             <button
               onClick={() => handleQuantityChange(localQuantity + 1)}
-              className="px-3 py-1 hover:bg-gray-100"
+              className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50 text-gray-600 hover:text-gray-900"
             >
               +
             </button>
           </div>
           <button
             onClick={() => onRemove(id)}
-            className="text-red-600 hover:text-red-700 text-sm"
+            className="text-red-600 hover:text-red-700 text-sm text-left w-fit"
           >
             Remove
           </button>
         </div>
       </div>
-      <div className="text-right">
-        <p className="font-semibold text-gray-900">₦{(price * localQuantity).toLocaleString()}</p>
-        <p className="text-sm text-gray-500">₦{price.toLocaleString()} each</p>
+      <div className="text-right flex-shrink-0">
+        <p className="font-semibold text-gray-900 text-base">₦{(price * localQuantity).toLocaleString()}</p>
       </div>
     </div>
   );

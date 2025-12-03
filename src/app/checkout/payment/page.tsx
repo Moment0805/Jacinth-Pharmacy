@@ -165,7 +165,7 @@ export default function PaymentPage() {
       </div>
 
       {/* Progress Indicator */}
-      <CheckoutProgress currentStep="payment" />
+      <CheckoutProgress currentStep="shipping" />
 
       <div className="container mx-auto px-4 py-8">
         <form onSubmit={handleSubmit}>
@@ -338,7 +338,7 @@ export default function PaymentPage() {
                 showDeliveryOption={true}
                 deliveryOption={deliveryOption}
                 onDeliveryOptionChange={setDeliveryOption}
-                proceedLabel={submitting ? 'Processing...' : 'Proceed to Payment'}
+                proceedLabel={submitting ? 'Processing...' : 'Proceed to next'}
               />
             </div>
           </div>

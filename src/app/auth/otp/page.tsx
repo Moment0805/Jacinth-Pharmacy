@@ -103,11 +103,28 @@ function OtpPageContent() {
 
       {/* Centered Card */}
       <div className="flex flex-1 items-center justify-center px-4">
-        <div className="w-full max-w-[520px]  rounded-3xl border-1 py-12 px-24">
+        <div className="w-full max-w-[520px]  rounded-3xl shadow-sm py-12 px-24 relative">
+          {/* Back Button */}
+          <button
+            onClick={() => router.push(`/auth/signup?email=${encodeURIComponent(email)}`)}
+            className="absolute top-6 left-6 p-2 hover:bg-gray-100 rounded-full transition-colors"
+            type="button"
+          >
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
           {/* Progress Steps */}
           <div className="mb-10 ">
             <div className="flex justify-center gap-2 mb-8 text-sm">
-              <span className="text-green-600 font-medium">1. Sign up</span>
+              <button
+                onClick={() => router.push(`/auth/signup?email=${encodeURIComponent(email)}`)}
+                className="text-green-600 font-medium hover:underline cursor-pointer"
+                type="button"
+              >
+                1. Sign up
+              </button>
               <svg
                 width="16"
                 height="16"
@@ -170,7 +187,7 @@ function OtpPageContent() {
             <button
               type="submit"
               disabled={loading || !otp || otp.length !== 4}
-              className="w-full bg-green-700 hover:bg-green-600 disabled:bg-green-400 disabled:cursor-not-allowed text-white py-3.5 rounded-full font-medium text-sm transition-all mt-6"
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-800 disabled:cursor-not-allowed text-white py-3.5 rounded-full font-medium text-sm transition-all mt-6"
             >
               {loading ? "Verifying..." : "Verify OTP"}
             </button>

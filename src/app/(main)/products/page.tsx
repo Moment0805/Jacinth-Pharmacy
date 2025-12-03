@@ -8,6 +8,8 @@ import ProductFilters from '../../components/ProductFilters';
 import Pagination from '../../components/Pagination';
 import PromotionalBanner from '../../components/PromotionalBanner';
 import { api, handleApiResponse } from '@/app/lib/api';
+import { mockProducts } from '@/app/lib/mockProducts';
+import { mockCategories } from '@/app/lib/mockCategories';
 
 interface Product {
   id: string;
@@ -42,11 +44,15 @@ export default function ProductsPage() {
       try {
         const response = await api.getCategories();
         const data = await handleApiResponse(response);
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setCategories(data);
+        } else {
+          // Use mock categories if backend returns empty
+          setCategories(mockCategories);
         }
       } catch (error) {
-        // Silently fail
+        // Use mock categories if backend fails
+        setCategories(mockCategories);
       }
 
       // Check for category from URL
@@ -90,12 +96,27 @@ export default function ProductsPage() {
       try {
         const response = await api.getProducts(Object.fromEntries(params));
         const data = await handleApiResponse(response);
-        if (data.data) {
+        if (data.data && data.data.length > 0) {
           setProducts(data.data);
           setTotalPages(data.meta?.totalPages || 1);
+        } else {
+          // Use mock products if backend returns empty
+          let filteredProducts = mockProducts;
+          if (selectedCategory) {
+            filteredProducts = mockProducts.filter(p => p.categoryId === selectedCategory);
+          }
+          setProducts(filteredProducts);
+          setTotalPages(1);
         }
       } catch (error) {
         console.error('Error fetching products:', error);
+        // Use mock products if backend fails
+        let filteredProducts = mockProducts;
+        if (selectedCategory) {
+          filteredProducts = mockProducts.filter(p => p.categoryId === selectedCategory);
+        }
+        setProducts(filteredProducts);
+        setTotalPages(1);
       } finally {
         setLoading(false);
       }
@@ -114,7 +135,7 @@ export default function ProductsPage() {
               Back home
             </Link>
             <span>/</span>
-            <span className="text-gray-900">Shopping cart</span>
+            <span className="text-gray-900">Products</span>
           </div>
         </div>
       </div>
@@ -141,13 +162,13 @@ export default function ProductsPage() {
           <div className="lg:col-span-3">
             {/* Sort and Title */}
             <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-              <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-gray-900 hidden lg:block">Products</h1>
+              <div className="flex items-center gap-2 ml-auto">
                 <label className="text-sm text-gray-600">Sort by:</label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                 >
                   <option value="latest">Latest</option>
                   <option value="price-low">Price: Low to High</option>
